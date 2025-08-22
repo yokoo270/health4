@@ -1,0 +1,70 @@
+"use client"
+
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { ExportProvider } from "@/components/data-export/global-export-provider"
+import { LegalDisclaimerModal } from "@/components/legal/legal-disclaimer-modal"
+import { usePathname } from "next/navigation"
+import * as React from "react"
+
+interface SidebarLayoutProps {
+  children: React.ReactNode
+  breadcrumbs?: Array<{
+    label: string
+    href?: string
+  }>
+}
+
+export function SidebarLayout({ children, breadcrumbs }: SidebarLayoutProps) {
+  const pathname = usePathname()
+  return (
+    <ExportProvider>
+      <SidebarProvider>
+        <AppSidebar currentPath={pathname} />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              {breadcrumbs && (
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    {breadcrumbs.map((breadcrumb, index) => (
+                      <React.Fragment key={index}>
+                        <BreadcrumbItem className="hidden md:block">
+                          {breadcrumb.href ? (
+                            <BreadcrumbLink href={breadcrumb.href}>
+                              {breadcrumb.label}
+                            </BreadcrumbLink>
+                          ) : (
+                            <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                          )}
+                        </BreadcrumbItem>
+                        {index < breadcrumbs.length - 1 && (
+                          <BreadcrumbSeparator className="hidden md:block" />
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              )}
+            </div>
+          </header>
+          <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+      <LegalDisclaimerModal />
+    </ExportProvider>
+  )
+}
